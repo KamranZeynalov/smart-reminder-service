@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Smart Reminder Service
+
+Globals:
+  Function:
+    Timeout: 20
+    Runtime: java17
+    MemorySize: 512
+
+Resources:
+  ReminderSetupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: com.company.ReminderSetupFunction::handleRequest
+      Events:
+        ApiEndpoint:
+          Type: Api
+          Properties:
+            Path: /subscribe
+            Method: post
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref UserReminderInfo
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserReminderInfo
+
+  UserReminderInfo:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: email
+        Type: String
+      TableName: user_reminder_info
+
