@@ -20,12 +20,37 @@ Resources:
           Properties:
             Path: /subscribe
             Method: post
+            RestApiId: !Ref SmartReminderAPI
       Environment:
         Variables:
           TABLE_NAME: !Ref UserReminderInfo
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserReminderInfo
+
+  SendReminderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: com.company.service.SendReminderFunction::handleRequest
+      Events:
+        DailySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 * * * ? *)  # Every hour
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref UserReminderInfo
+          SENDER_EMAIL: "manik39201@ikanteri.com"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserReminderInfo
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: "*"
 
   UserReminderInfo:
     Type: AWS::Serverless::SimpleTable
@@ -35,3 +60,8 @@ Resources:
         Type: String
       TableName: user_reminder_info
 
+  SmartReminderAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: SmartReminderApi
+      StageName: Prod
