@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Smart Reminder Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<div class="w-full max-w-xl p-8 bg-white rounded-2xl shadow-lg">
+    <h1 class="text-2xl font-bold mb-6 text-center text-blue-600">🧠 Smart Reminder App</h1>
+
+    <form id="reminderForm" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700">📧 Email</label>
+            <input type="email" name="email" required
+                   class="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"/>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">📝 Note</label>
+            <input type="text" name="reminder" required
+                   class="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"/>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">⏰ Send Time (UTC)</label>
+            <input type="time" name="sendTime" required
+                   class="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"/>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">📅 Days</label>
+            <div class="grid grid-cols-4 gap-2">
+                <label><input type="checkbox" name="days" value="MONDAY"/> Mon</label>
+                <label><input type="checkbox" name="days" value="TUESDAY"/> Tue</label>
+                <label><input type="checkbox" name="days" value="WEDNESDAY"/> Wed</label>
+                <label><input type="checkbox" name="days" value="THURSDAY"/> Thu</label>
+                <label><input type="checkbox" name="days" value="FRIDAY"/> Fri</label>
+                <label><input type="checkbox" name="days" value="SATURDAY"/> Sat</label>
+                <label><input type="checkbox" name="days" value="SUNDAY"/> Sun</label>
+            </div>
+        </div>
+
+        <button id="submitButton" type="submit"
+                class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
+            ✅ Set Reminder
+        </button>
+    </form>
+
+    <div id="message" class="mt-4 text-center text-sm font-medium"></div>
+</div>
+
+<script>
+    const form = document.getElementById("reminderForm");
+    const message = document.getElementById("message");
+    const submitButton = document.getElementById("submitButton");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      message.textContent = '';
+      message.className = '';
+
+      // Disable button + show loading state
+      submitButton.disabled = true;
+      submitButton.textContent = "⏳ Sending...";
+
+      const formData = new FormData(form);
+      const days = Array.from(formData.getAll("days"));
+
+      const payload = {
+        email: formData.get("email"),
+        reminder: formData.get("reminder"),
+        sendTime: formData.get("sendTime"),
+        days: days
+      };
+
+      try {
+        const res = await fetch("https://wwgjrblvkh.execute-api.eu-west-1.amazonaws.com/Prod/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          message.textContent = "🎉 Reminder saved! Check your email on selected days at the set time.";
+          message.className = "mt-4 text-green-600 text-center text-sm font-semibold";
+          form.reset();
+        } else {
+          message.textContent = "❌ Failed to save reminder. Please try again.";
+          message.className = "mt-4 text-red-600 text-center text-sm font-semibold";
+        }
+      } catch (err) {
+        message.textContent = "❌ Network error. Try again later.";
+        message.className = "mt-4 text-red-600 text-center text-sm font-semibold";
+      }
+
+      // Re-enable button
+      submitButton.disabled = false;
+      submitButton.textContent = "✅ Set Reminder";
+    });
+</script>
+</body>
+</html>
