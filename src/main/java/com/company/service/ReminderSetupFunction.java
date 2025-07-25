@@ -23,28 +23,34 @@ public class ReminderSetupFunction implements RequestHandler<APIGatewayProxyRequ
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context) {
         try {
-            ReminderSetupRequest input = objectMapper.readValue(event.getBody(), ReminderSetupRequest.class);
+            ReminderSetupRequest request = objectMapper.readValue(event.getBody(), ReminderSetupRequest.class);
 
-            Map<String, AttributeValue> item = new HashMap<>();
-            item.put("email", AttributeValue.fromS(input.getEmail()));
-            item.put("location", AttributeValue.fromS(input.getLocation()));
-            item.put("sendTime", AttributeValue.fromS(input.getSendTime()));
-            item.put("reminder", AttributeValue.fromS(input.getReminder()));
+            saveUserReminderToDynamoDB(request);
 
-            dynamoDb.putItem(PutItemRequest.builder()
-                    .tableName(tableName)
-                    .item(item)
-                    .build());
+            return buildResponse(200, "User reminder info saved successfully");
 
-            return new APIGatewayProxyResponseEvent()
-                    .withStatusCode(200)
-                    .withBody("User reminder info saved successfully");
-
-        } catch (Exception e) {
-            context.getLogger().log("Error: " + e.getMessage());
-            return new APIGatewayProxyResponseEvent()
-                    .withStatusCode(500)
-                    .withBody("Internal server error: " + e.getMessage());
+        } catch (Exception ex) {
+            context.getLogger().log("Error: " + ex.getMessage());
+            return buildResponse(500, "Internal server error: " + ex.getMessage());
         }
+    }
+
+    private void saveUserReminderToDynamoDB(ReminderSetupRequest request) {
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("email", AttributeValue.fromS(request.getEmail()));
+        item.put("note", AttributeValue.fromS(request.getReminder()));
+        item.put("send_time", AttributeValue.fromS(request.getSendTime()));
+        item.put("days", AttributeValue.fromS(String.join(",", request.getDays())));
+
+        dynamoDb.putItem(PutItemRequest.builder()
+                .tableName(tableName)
+                .item(item)
+                .build());
+    }
+
+    private APIGatewayProxyResponseEvent buildResponse(int statusCode, String body) {
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(statusCode)
+                .withBody(body);
     }
 }
