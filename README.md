@@ -52,7 +52,7 @@
 
 ---
 
-## ⚙️ How It Works
+## 📖 How It Works
 
 1. User opens the S3-hosted website and enters:
     - Email address
