@@ -18,6 +18,7 @@
 
 - [Tech Stack](#-tech-stack)
 - [Features](#-features)
+- [Architecture Diagram](#-architecture-diagram)
 - [How It Works](#-how-it-works)
 - [Live Demo](#-live-demo)
 - [Deployment (via SAM)](#-deployment-via-sam)
@@ -49,6 +50,12 @@
 - 🕗 Scheduled execution using EventBridge (cron jobs)
 - 🗃️ User preferences stored securely in DynamoDB
 - 🌐 Static frontend served via S3
+
+---
+
+## 📐 Architecture Diagram
+
+![Architecture Diagram](assets/architecture.png) <!-- Will be added -->
 
 ---
 
