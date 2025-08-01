@@ -55,7 +55,7 @@
 
 ## 📐 Architecture Diagram
 
-![Architecture Diagram](assets/architecture.png) <!-- Will be added -->
+![Architecture Diagram](assets/architecture_diagram.PNG)
 
 ---
 
