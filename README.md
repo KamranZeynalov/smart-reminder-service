@@ -57,6 +57,17 @@
 
 ![Architecture Diagram](assets/architecture_diagram.PNG)
 
+### 🔄 Flow Summary
+
+1. The user accesses the static website hosted on Amazon S3 to set a reminder.
+2. The frontend sends a POST request containing the user’s reminder details to an API Gateway endpoint.
+3. The API Gateway triggers the ReminderSetupFunction (an AWS Lambda function).
+4. The ReminderSetupFunction stores the user’s data (email, message, time, day(s)) in Amazon DynamoDB.
+5. Every day at a scheduled time (e.g., 8:00 AM UTC), Amazon EventBridge triggers the SendReminderFunction.
+6. The SendReminderFunction scans DynamoDB to find reminders that match the current time and day.
+7. If a match is found, it generates a personalized email (including a quote of the day) and sends it via Amazon SES.
+8. The user receives the reminder email in their inbox.
+
 ---
 
 ## 📖 How It Works
